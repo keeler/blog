@@ -7,6 +7,10 @@
     color: #b5232f; // Custom Color
 }
 
+.nav-item-custom {
+    color: #b5232f !important; // Custom Color
+}
+
 code.has-jax {
     font: inherit !important;
     font-size: 100% !important;

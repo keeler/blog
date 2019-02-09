@@ -15,7 +15,7 @@ PygmentsStyle = "vim"
 
 [params.sections_left]
   about = "About"
-  posts = "Posts"
+  posts = "Blog"
   tags = "Tags"
 
 #[params.features]

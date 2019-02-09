@@ -7,7 +7,7 @@ categories:
 tags:
   - ANOVA
   - R
-draft: true
+draft: false
 ---
 One-way ANOVA is the key to a "weighted variance" analogue to the weighted mean.
 
@@ -17,15 +17,15 @@ One-way ANOVA is the key to a "weighted variance" analogue to the weighted mean.
 
 Suppose you have a dataset released by the United Nations about household incomes around the world. However, the UN aggregated the data before making it public: you only see the mean household income and number of households for each country.
 
-From this summarized data you could recover the grand mean household income across the world. Just compute a weighted mean over the group means, weighting each group mean by the number of houses it represents.
+From this summarized data you could recover the overall (grand) mean household income across the world. Just compute a weighted mean over the group means, weighting each group mean by the number of houses it represents.
 
 I wanted to know: is there an analogue to the weighted mean for the grand variance? That is, given only summarized data, how would one recover the grand variance?
 
 After some digging I turned up [this article](http://www.burtonsys.com/climate/composite_standard_deviations.html) which touches on precisely this topic! Perhaps unsurprisingly, this entire line of questioning is deeply related to analysis of variance (ANOVA). Basically, you would need one additional summary statistic per group, the variance in the household income, to compute the grand variance.
 
-While I greatly appreciate the breakdown in that article, I found its notation a bit cumbersome. It's an edited email correspondence in plain text, so that notation is a function of the medium and not any failing on the author's part.
+Unfortunately the article is an edited email correspondence in plain text so the notation was a little hard for me to follow. Despite the non-standard notation, the article helped me wrap my head around this so I really appreciate the author sharing the correspondence.
 
-I'd like to take a stab at rewriting the derivation for the formula in a more direct way, both to cement my understanding of this and to give MathJax a whirl for my first blog post. Finally, see the end for a quick R snippet demonstrating the formula.
+I'd like to take a stab deriving the formula in a more direct way, both to cement my understanding and to give MathJax a whirl for my first blog post. Finally, see the end for a quick R snippet demonstrating the formula.
 
 # Punchline
 
