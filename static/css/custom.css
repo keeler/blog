@@ -1,0 +1,42 @@
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+    color: #b5232f; // Custom Color
+}
+
+code.has-jax {
+    font: inherit !important;
+    font-size: 100% !important;
+    background: white !important;
+    border: none !important;
+    color: #515151 !important;
+    padding: 0px 1px !important;
+    margin: 0px 0px !important;
+}
+
+.block:not(:last-child),
+.box:not(:last-child),
+.content:not(:last-child),
+.highlight:not(:last-child),
+.level:not(:last-child),
+.message:not(:last-child),
+.notification:not(:last-child),
+.progress:not(:last-child),
+.subtitle:not(:last-child),
+.tabs:not(:last-child),
+.title:not(:last-child) {
+  margin-bottom: 30px;
+}
+
+.content h1:not(:first-child),
+.content h2:not(:first-child),
+.content h3:not(:first-child),
+.content h4:not(:first-child),
+.content h5:not(:first-child),
+.content h6:not(:first-child),
+article + article {
+  margin-top: 0px;
+}
