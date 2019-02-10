@@ -4,32 +4,31 @@ date: 2019-02-03T19:34:55-08:00
 toc: true
 categories:
   - Statistics
+  - Programming
 tags:
   - ANOVA
   - R
-draft: false
+draft: true
 ---
-One-way ANOVA is the key to a "weighted variance" analogue to the weighted mean.
+The weighted mean has an analogue for variance, closely related to [one-way ANOVA](https://en.wikipedia.org/wiki/One-way_analysis_of_variance). 
 
 <!--more-->
 
 # Background
 
-Suppose you have a dataset released by the United Nations about household incomes around the world. However, the UN aggregated the data before making it public: you only see the mean household income and number of households for each country.
+Suppose you have a dataset released by the United Nations about household incomes around the world, but they aggregated the data before making it public. You only see the mean household income and number of households (cardinality) for each country.
 
-From this summarized data you could recover the overall (grand) mean household income across the world. Just compute a weighted mean over the group means, weighting each group mean by the number of houses it represents.
+You could compute a weighted mean to recover the grand mean household income as if you had calculated it from the raw, unaggregated sample observations.
 
-I wanted to know: is there an analogue to the weighted mean for the grand variance? That is, given only summarized data, how would one recover the grand variance?
+I wondered, does the grand variance have a "weighted variance" analogue to the weighted mean? That is, given only summarized data, how could you recover the grand variance of the unaggregated sample?
 
-After some digging I turned up [this article](http://www.burtonsys.com/climate/composite_standard_deviations.html) which touches on precisely this topic! Perhaps unsurprisingly, this entire line of questioning is deeply related to analysis of variance (ANOVA). Basically, you would need one additional summary statistic per group, the variance in the household income, to compute the grand variance.
+After some digging I turned up this article, [Composite Standard Deviations](http://www.burtonsys.com/climate/composite_standard_deviations.html), which breaks down precisely this topic! Perhaps unsurprisingly, this entire line of questioning relates closely to analysis of variance (ANOVA).
 
-Unfortunately the article is an edited email correspondence in plain text so the notation was a little hard for me to follow. Despite the non-standard notation, the article helped me wrap my head around this so I really appreciate the author sharing the correspondence.
+I'd like to take a stab at explaining my understanding of all this and at deriving the equation at hand, both to cement my understanding and to give MathJax a whirl for my first blog post. Also, see the end of the post for a reference snippet of R code.
 
-I'd like to take a stab deriving the formula in a more direct way, both to cement my understanding and to give MathJax a whirl for my first blog post. Finally, see the end for a quick R snippet demonstrating the formula.
+# The Punchline
 
-# Punchline
-
-Here's the important formula, see the derivation below if interested.
+Here's the equation for the grand variance in terms of group summary statistics:
 ```$$
 \begin{align}
 \sigma^2 = \frac{1}{N-1}\sum_{g=1}^{G} \big[(n_g - 1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big]
@@ -37,17 +36,34 @@ Here's the important formula, see the derivation below if interested.
 $$```
 Where
 
-* `$G$` is the number of groups,
-* `$n_g$`, `$\mu_g$`, and `$\sigma_g^2$` are the size, mean, and variance of group `$g \in \{1, 2,\ ...\ , G - 1, G\}$`,
+* `$G$` is the number of groups ,
+* `$n_g$` = cardinality (count of observartions) of group `$g \in \{1, 2,\ ...\ , G - 1, G\}$`,
+* `$\mu_g$` = mean of group `$g$`,
+* `$\sigma_g^2$` = variance of group `$g$`,
 * and `$N = \sum_{g=1}^{G} n_g$` is the total sample size.
 
-While I won't explain one-way ANOVA[^1], you can see that the `$\sum (n_g - 1)\sigma_g^2$` expression is exactly equal to ANOVA's "within-group sum of squares" term (aka error sum of squares), and the expression `$\sum n_g(\mu_g - \mu)^2$` is exactly equal to the "between-group sum of squares" term (aka treatment sum of squares) in ANOVA. Additionally, if you didn't divide the entire expression by `$N-1$` you would have the "total sum of squares" of ANOVA.
+The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need all `$n_g \ge 1$` for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only, a condition shared with the weighted mean.
+
+# How does this relate to one-way ANOVA?
+
+With a few simple re-arrangements of (1) above we can map its components directly onto the core mechanics of a one-way ANOVA[^1]:
+```$$
+(N - 1)\sigma^2 = \sum_{g=1}^{G} (n_g - 1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2
+$$```
+
+* `$\sum (n_g - 1)\sigma_g^2$` is ANOVA's "within-group" ("error", "residual", ...) sum of squares term with `$N-G$` degrees of freedom.
+* `$\sum n_g(\mu_g - \mu)^2$` is ANOVA's "between-group" ("treatment", "model", ...) sum of squares term with `$G-1$` degrees of freedom.
+* Multiply `$\sigma^2$` by the total `$N-1 = (N - G) + (G - 1)$` degrees of freedom to get the "total sum of squares" of ANOVA, the sum total of the squared deviations from the grand mean.
+
+So, you can think of `$\sum (n_g - 1)\sigma_g^2$` as the total variability within groups, `$\sum n_g(\mu_g - \mu)^2$` as the total variability between groups, and the grand variance `$\sigma^2$` combines them.
+
+Note that the equation follows directly from the defintion of variance (see derivation below), so ANOVA's assumptions like normality and identical population variances do not apply. Performing ANOVA requires these assumptions for the [F-test](https://en.wikipedia.org/wiki/F-test) it ultimately boils down to, but aggregating variance does not.
 
 # Derivation
 
-Suppose we have `$N >= 1$` observations `$x_1, x_2,\ ...\ , x_N$` of some phenomenon. Let `$x_i$` be the `$i$`<sup>th</sup> observation.
+Suppose we have a sample of `$N >= 1$` observations/measurements `$x_1, x_2,\ ...\ , x_N$` of some phenomenon. Let `$x_i$` be the `$i$`<sup>th</sup> observation where `$1 \le i \le N$`.
 
-Then the grand mean `$\mu$` and grand variance `$\sigma^2$` are given by:
+Then the grand mean `$\mu$` and grand variance `$\sigma^2$` for the sample are given by:
 ```$$
 \begin{align}
 \mu &= \frac{1}{N} \sum_{i=1}^{N} x_i \\
@@ -56,7 +72,7 @@ Then the grand mean `$\mu$` and grand variance `$\sigma^2$` are given by:
 $$```
 Let `$G \in \{1, 2,\ ...\ , N-1, N\}$` be the number of groups. Assign exactly one group label `$g \in \{1, 2,\ ...\ , G - 1, G\}$` to each observation `$x_i$` such that each group label is used at least once. These group labels could have any meaning attached to them, or be completely arbitrary.
 
-Let `$x_{g,k}$` be the `$k$`<sup>th</sup> point in group `$g$` (order does not matter), and let `$n_g$` be the number of observations `$x_i$` in group `$g$`. We have in effect renamed the observations since there is a bijection between the original observations `$x_i$` and relabelled observations `$x_{g,k}$`. Hence, `$N = \sum_{g=1}^{G} n_g$` and for all `$g$` we have `$n_g > 1$`.
+Let `$x_{g,k}$` be the `$k$`<sup>th</sup> point in group `$g$` (order does not matter), and let `$n_g$` be the number of observations `$x_i$` in group `$g$`. We have essentially renamed the observations since there is a bijection between the original observations `$x_i$` and relabelled observations `$x_{g,k}$`. Hence, `$N = \sum_{g=1}^{G} n_g$` and for all `$g$` we have `$n_g \ge 1$`.
 
 The group mean mean `$\mu_g$` and group variance `$\sigma_g^2$` for group `$g$` are given by
 ```$$
@@ -92,7 +108,7 @@ Note that to get from (13) to (14) uses a re-arrangement (5).
 
 # Code
 
-Finally, here's snippet of R code to demonstrate the formula.
+Finally, here's snippet of R code to demonstrate the equation.
 
 {{< highlight R >}}
 library(dplyr)
@@ -101,7 +117,7 @@ library(dplyr)
 N <- 500
 dd <- data.frame(
   group = sample(LETTERS, size=N, replace=T),
-  observation = rnorm(N, mean=100, sd=10)
+  observation = rgamma(N, shape=1.1, rate=0.001)
 )
 
 # Aggregate the data to mean, variance, and size per group.
@@ -124,4 +140,4 @@ print(paste("Grand variance from aggregated data:", v))
 
 
 
-[^1]: The [article](http://www.burtonsys.com/climate/composite_standard_deviations.html) I previously linked to and [this page](https://people.richland.edu/james/lecture/m170/ch13-1wy.html) where helpful to me in making these connections.
+[^1]: The [article](http://www.burtonsys.com/climate/composite_standard_deviations.html) I previously linked to and [this page](https://people.richland.edu/james/lecture/m170/ch13-1wy.html) where helpful to me in understanding the connection.
