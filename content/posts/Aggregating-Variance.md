@@ -42,11 +42,11 @@ Where
 * `$\sigma_g^2$` = variance of group `$g$`,
 * and `$N = \sum_{g=1}^{G} n_g$` is the total sample size.
 
-The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need all `$n_g \ge 1$` for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only, a condition shared with the weighted mean.
+The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need `$n_g \ge 1$` for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only, a condition shared with the weighted mean.
 
 # How does this relate to one-way ANOVA?
 
-With a few simple re-arrangements of (1) above we can map its components directly onto the core mechanics of a one-way ANOVA[^1]:
+With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA[^1]:
 ```$$
 (N - 1)\sigma^2 = \sum_{g=1}^{G} (n_g - 1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2
 $$```
