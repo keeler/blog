@@ -14,9 +14,9 @@ PygmentsCodeFences = true
 PygmentsStyle = "vim"
 
 [params.sections_left]
-  about = "About"
-  posts = "Blog"
-  tags = "Tags"
+  "about" = "About"
+  "posts/" = "Blog"
+  "tags" = "Tags"
 
 #[params.features]
 #disqusOnDemand = true  # Load Disqus comments on click
