@@ -8,7 +8,7 @@ categories:
 tags:
   - ANOVA
   - R
-draft: true
+draft: false
 ---
 The weighted mean has an analogue for variance, closely related to [one-way ANOVA](https://en.wikipedia.org/wiki/One-way_analysis_of_variance). 
 
