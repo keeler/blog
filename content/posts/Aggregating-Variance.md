@@ -16,7 +16,7 @@ The weighted mean has an analogue for variance, closely related to [one-way ANOV
 
 # Background
 
-Suppose you have a dataset released by the United Nations about household incomes around the world, but they aggregated the data before making it public. You only see the mean household income and number of households (cardinality) for each country.
+Suppose you have a dataset released by the United Nations about household incomes around the world, but they aggregated the data before making it public. You only see the mean household income and number of households for each country.
 
 You could compute a weighted mean to recover the grand mean household income as if you had calculated it from the raw, unaggregated sample observations.
 
@@ -36,7 +36,7 @@ Here's the equation for the grand variance in terms of group summary statistics:
 $$```
 Where
 
-* `$G$` is the number of groups ,
+* `$G$` is the number of groups,
 * `$n_g$` = cardinality (count of observartions) of group `$g \in \{1, 2,\ ...\ , G - 1, G\}$`,
 * `$\mu_g$` = mean of group `$g$`,
 * `$\sigma_g^2$` = variance of group `$g$`,
@@ -70,7 +70,7 @@ Then the grand mean `$\mu$` and grand variance `$\sigma^2$` for the sample are g
 \sigma^2 &= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2
 \end{align}
 $$```
-Let `$G \in \{1, 2,\ ...\ , N-1, N\}$` be the number of groups. Assign exactly one group label `$g \in \{1, 2,\ ...\ , G - 1, G\}$` to each observation `$x_i$` such that each group label is used at least once. These group labels could have any meaning attached to them, or be completely arbitrary.
+Let `$G$` be the number of groups, and `$1 \le G \le N$`. Assign exactly one group label `$g \in \{1, 2,\ ...\ , G - 1, G\}$` to each observation `$x_i$` such that each group label is used at least once. These group labels could have any meaning attached to them, or be completely arbitrary.
 
 Let `$x_{g,k}$` be the `$k$`<sup>th</sup> point in group `$g$` (order does not matter), and let `$n_g$` be the number of observations `$x_i$` in group `$g$`. We have essentially renamed the observations since there is a bijection between the original observations `$x_i$` and relabelled observations `$x_{g,k}$`. Hence, `$N = \sum_{g=1}^{G} n_g$` and for all `$g$` we have `$n_g \ge 1$`.
 
@@ -137,7 +137,6 @@ print(paste("Grand variance from raw observations:", var(dd$observation)))
 print(paste("Grand variance from aggregated data:", v))
 
 {{</highlight>}}
-
 
 
 [^1]: The [article](http://www.burtonsys.com/climate/composite_standard_deviations.html) I previously linked to and [this page](https://people.richland.edu/james/lecture/m170/ch13-1wy.html) where helpful to me in understanding the connection.
