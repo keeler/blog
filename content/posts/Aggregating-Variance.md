@@ -16,11 +16,17 @@ The weighted mean has an analogue for variance, closely related to [one-way ANOV
 
 # Background
 
-Suppose you have a dataset released by the United Nations about household incomes around the world, but they aggregated the data before making it public. You only see the mean household income and number of households for each country.
+Consider this datset, derived by taking the mean sepal length and count for each species in R's built-in `iris` dataset[^1].
 
-You could compute a weighted mean to recover the grand mean household income as if you had calculated it from the raw, unaggregated sample observations.
+| Species    | Mean.Sepal.Length | Num.Observations |
+| :--------- | ----------------: | ---------------: |
+| setosa     |              5.01 |               50 |
+| versicolor |              5.94 |               50 |
+| virginica  |              6.59 |               50 |
 
-I wondered, does the grand variance have a "weighted variance" analogue to the weighted mean? That is, given only summarized data, how could you recover the grand variance of the unaggregated sample?
+If you wanted to know the overall (a.k.a. grand) mean sepal length, you could apply a [weighted mean](https://en.wikipedia.org/wiki/Weighted_arithmetic_mean) to the summary statistics in that table and find the answer: (5.01 * 50 + 5.94 * 50 + 6.59 * 50) / 150 = 5.85. This is the same result as if you had calculated it from the raw, unaggregated sample observations.
+
+So there's a weighted mean for the grand mean, but is there an analogous "weighted variance" calculation for the grand variance? In other words, given only summarized data, how could you recover the grand variance of the unaggregated sample data?
 
 After some digging I turned up this article, [Composite Standard Deviations](http://www.burtonsys.com/climate/composite_standard_deviations.html), which breaks down precisely this topic! Perhaps unsurprisingly, this entire line of questioning relates closely to analysis of variance (ANOVA).
 
@@ -44,11 +50,11 @@ Where
 * `$\sigma_g^2$` = variance of group `$g$`,
 * and `$N = \sum_{g=1}^{G} n_g$` is the total sample size.
 
-The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need `$n_g \ge 1$` for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only, a condition shared with the weighted mean.
+The equation works regardless of the meaning attached to the groups, or even if the groups were assigned completely at random. However, we need `$n_g \ge 1$` for all groups and the groups should be non-overlapping. In other words, an observation in the original dataset must be aggregated into one group only. Note that the weighted mean has these same conditions as well.
 
 # How does this relate to one-way ANOVA?
 
-With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA[^1]:
+With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA[^2]:
 
 $$
 (N - 1)\sigma^2 = \sum_{g=1}^{G} (n_g - 1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2
@@ -149,5 +155,14 @@ print(paste("Grand variance from aggregated data:", v))
 
 {{</highlight>}}
 
+[^1]: Here's the code to generate that table:
+{{< highlight R >}}
+library(dplyr)
+library(datasets)
+data(iris)
 
-[^1]: The [article](http://www.burtonsys.com/climate/composite_standard_deviations.html) I previously linked to and [this page](https://people.richland.edu/james/lecture/m170/ch13-1wy.html) where helpful to me in understanding the connection.
+iris %>%
+  group_by(Species) %>%
+  summarize(Mean.Sepal.Length=mean(Sepal.Length), Num.Observations=n())
+{{</highlight>}}
+[^2]: The [article](http://www.burtonsys.com/climate/composite_standard_deviations.html) I previously linked to and [this page](https://people.richland.edu/james/lecture/m170/ch13-1wy.html) where helpful to me in understanding the connection.
