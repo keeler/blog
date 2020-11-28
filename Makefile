@@ -14,14 +14,14 @@ DOCKER_GROUP_COMMAND = \
 	--entrypoint ls $(DOCKER_IMAGE) -l /run/docker.sock \
 	| awk '{print $$4}'
 
-.PHONY: run
-run: PORT_FORWARD = -p 1313:1313
-run:
+.PHONY: drafts
+drafts: PORT_FORWARD = -p 1313:1313
+drafts:
 	$(HUGO) server -D
 
-.PHONY: run.prepublish
-run.prepublish: PORT_FORWARD = -p 1313:1313
-run.prepublish:
+.PHONY: live
+live: PORT_FORWARD = -p 1313:1313
+live:
 	$(HUGO) server
 
 .PHONY: build
