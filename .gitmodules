@@ -2,3 +2,6 @@
 	path = public
 	url = git@github.com:keeler/keeler.github.io.git
 	branch = master
+[submodule "themes/kiss"]
+	path = themes/kiss
+	url = git@github.com:ribice/kiss.git
