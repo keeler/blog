@@ -3,7 +3,7 @@
 A personal blog generated with [Hugo][hugo-main]. Check out the blog live [here][blog].
 
 [hugo-main]: https://gohugo.io/
-[blog]: https://keeler.github.io/
+[blog]: https://keeler.github.io/posts
 
 ## Running Locally
 
