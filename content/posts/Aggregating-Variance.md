@@ -29,11 +29,13 @@ I'd like to take a stab at explaining my understanding of all this and at derivi
 # The Punchline
 
 Here's the equation for the grand variance in terms of group summary statistics:
-```$$
+
+$$
 \begin{align}
 \sigma^2 = \frac{1}{N-1}\sum_{g=1}^{G} \big[(n_g - 1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big]
 \end{align}
-$$```
+$$
+
 Where
 
 * `$G$` is the number of groups,
@@ -47,9 +49,10 @@ The equation works regardless of the meaning attached to the groups, or even if 
 # How does this relate to one-way ANOVA?
 
 With a few re-arrangements of equation (1) we can map its components directly onto the core mechanics of a one-way ANOVA[^1]:
-```$$
+
+$$
 (N - 1)\sigma^2 = \sum_{g=1}^{G} (n_g - 1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2
-$$```
+$$
 
 * `$\sum (n_g - 1)\sigma_g^2$` is ANOVA's "within-group" ("error", "residual", ...) sum of squares term with `$N-G$` degrees of freedom.
 * `$\sum n_g(\mu_g - \mu)^2$` is ANOVA's "between-group" ("treatment", "model", ...) sum of squares term with `$G-1$` degrees of freedom.
@@ -64,46 +67,54 @@ Note that the equation follows directly from the defintion of variance (see deri
 Suppose we have a sample of `$N >= 1$` observations/measurements `$x_1, x_2,\ ...\ , x_N$` of some phenomenon. Let `$x_i$` be the `$i$`<sup>th</sup> observation where `$1 \le i \le N$`.
 
 Then the grand mean `$\mu$` and grand variance `$\sigma^2$` for the sample are given by:
-```$$
+
+$$
 \begin{align}
-\mu &= \frac{1}{N} \sum_{i=1}^{N} x_i \\
+\mu &= \frac{1}{N} \sum_{i=1}^{N} x_i \\\\
 \sigma^2 &= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2
 \end{align}
-$$```
+$$
+
 Let `$G$` be the number of groups, and `$1 \le G \le N$`. Assign exactly one group label `$g \in \{1, 2,\ ...\ , G - 1, G\}$` to each observation `$x_i$` such that each group label is used at least once. These group labels could have any meaning attached to them, or be completely arbitrary.
 
 Let `$x_{g,k}$` be the `$k$`<sup>th</sup> point in group `$g$` (order does not matter), and let `$n_g$` be the number of observations `$x_i$` in group `$g$`. We have essentially renamed the observations since there is a bijection between the original observations `$x_i$` and relabelled observations `$x_{g,k}$`. Hence, `$N = \sum_{g=1}^{G} n_g$` and for all `$g$` we have `$n_g \ge 1$`.
 
 The group mean mean `$\mu_g$` and group variance `$\sigma_g^2$` for group `$g$` are given by
-```$$
+
+$$
 \begin{align}
-\mu_g &= \frac{1}{n_g} \sum_{k=1}^{n_g} x_{g,k} \\
+\mu_g &= \frac{1}{n_g} \sum_{k=1}^{n_g} x_{g,k} \\\\
 \sigma_g^2 &= \frac{1}{n_g-1} \sum_{k=1}^{n_g} (x_{g,k} - \mu_g)^2
 \end{align}
-$$```
+$$
+
 We can express the grand mean `$\mu$` using a weighted mean on the `$\mu_g$` with `$n_g$` as the weights:
-```$$
+
+$$
 \begin{align}
 \mu = \frac{1}{N} \sum_{g=1}^{G} \mu_g n_g = \frac{\sum_{g=1}^{G} \mu_g n_g}{\sum_{g=1}^{G} n_g}
 \end{align}
-$$```
+$$
+
 Now we can start from definition of the grand variance (3) and through a series of substitutions reach the equation for the grand variance in terms of the group summary statistics (1).
-```$$
+
+$$
 \require{cancel}
 \begin{align}
-\sigma^2 &= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2 \\
-         &= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu)^2 \\
-         &= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu_g + \mu_g - \mu)^2 \\
-         &= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g) + (\mu_g - \mu)\big]^2 \\
-         &= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g)^2 + (x_{g,k} - \mu_g)(\mu_g - \mu) + (\mu_g - \mu)^2\big] \\
-         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)(\mu_g - \mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\
-         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k}\mu_g - x_{g,k}\mu - \mu_g^2 + \mu_g\mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\
-         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big( (n_g \mu_g)\mu_g - (n_g \mu_g)\mu - n_g\mu_g^2 + (n_g)\mu_g\mu \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\
-         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big(\cancel{n_g\mu_g^2} - \cancel{n_g\mu_g\mu} - \cancel{n_g\mu_g^2} + \cancel{n_g\mu_g\mu} \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\
-         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\
-         &= \frac{1}{N-1} \sum_{g=1}^{G}\big[(n_g-1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big] \\
+\sigma^2 &= \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2 \\\\
+         &= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu)^2 \\\\
+         &= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} (x_{g,k} - \mu_g + \mu_g - \mu)^2 \\\\
+         &= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g) + (\mu_g - \mu)\big]^2 \\\\
+         &= \frac{1}{N-1} \sum_{g=1}^{G}\sum_{k=1}^{n_g} \big[(x_{g,k} - \mu_g)^2 + (x_{g,k} - \mu_g)(\mu_g - \mu) + (\mu_g - \mu)^2\big] \\\\
+         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)(\mu_g - \mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\\\
+         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k} - \mu_g)^2 + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(x_{g,k}\mu_g - x_{g,k}\mu - \mu_g^2 + \mu_g\mu) + \sum_{g=1}^{G}\sum_{k=1}^{n_g}(\mu_g - \mu)^2\bigg] \\\\
+         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big( (n_g \mu_g)\mu_g - (n_g \mu_g)\mu - n_g\mu_g^2 + (n_g)\mu_g\mu \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\\\
+         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} \big(\cancel{n_g\mu_g^2} - \cancel{n_g\mu_g\mu} - \cancel{n_g\mu_g^2} + \cancel{n_g\mu_g\mu} \big) + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\\\
+         &= \frac{1}{N-1} \bigg[\sum_{g=1}^{G}(n_g-1)\sigma_g^2 + \sum_{g=1}^{G} n_g(\mu_g - \mu)^2\bigg] \\\\
+         &= \frac{1}{N-1} \sum_{g=1}^{G}\big[(n_g-1)\sigma_g^2 + n_g(\mu_g - \mu)^2\big] \\\\
 \end{align}
-$$```
+$$
+
 Note that to get from (13) to (14) uses a re-arrangement (5).
 
 # Code
