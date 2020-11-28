@@ -20,7 +20,7 @@ When you're ready to publish run `make publish` to build and deploy to the live 
 In particular, the command does the following:
 
 1. Build the site as a set of static files in the `public/` subdirectory.
-2. Push the updates in `public/` to the [GitHub page repo](github-page-repo). (`public/` is a git submodule pointing at the GitHub page repo).
+2. Push the updates in `public/` to the [GitHub page repo][github-page-repo]. (`public/` is a git submodule pointing at the GitHub page repo).
 
 This is based on the guidance outlined in the [Hugo docs for hosting on Github][hugo-github-pages].
 
