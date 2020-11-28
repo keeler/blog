@@ -1,5 +1,5 @@
 DOCKER_IMAGE ?= klakegg/hugo:0.78.2
-DEPLOY_MSG ?= Rebuilding site $$(date)
+DEPLOY_MSG ?= Rebuilding site $$(date +'%F %T %Z')
 
 HUGO = \
 	docker run --rm -it \
