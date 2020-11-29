@@ -9,7 +9,7 @@ A personal blog generated with [Hugo][hugo-main]. Check out the blog live [here]
 
 Running `make` or `make drafts` will host the site locally at [http://localhost:1313/](http://localhost:1313/).
 
-Changes to the posts, styling, etc. should be reloaded automatically, just refresh the page to see the updates.
+Changes to the posts, styling, etc. should be reloaded automatically.
 
 ## Deploying
 
