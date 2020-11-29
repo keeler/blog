@@ -40,3 +40,7 @@ publish: build
 	git add public/ && \
 	git commit -m "$(DEPLOY_MSG)" && \
 	git push origin master
+
+.PHONY: new-post
+new-post:
+	$(HUGO) new posts/$(filename)
