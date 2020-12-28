@@ -47,6 +47,10 @@ My WiFi has a decent WPA2 key and I kill the server immediately after I'm done t
 1. Open `http://10.0.0.129:54321` in Safari on your Apple device (replace IP address as apporpriate). You'll see a listing of files in the directory you started the HTTP server in.
 1. Download all the files you want. You can play them from "Downloads" on the iPhone.
 
+**See also:** [Concatenating MP3 Files]({{<relref "Concatenating-MP3-Files.md">}}).
+Audiobooks often get split into many smaller MP3s; copying each of these manually through a browser is tedious!
+That post shows a way to merge MP3 files together so you only need to download a single MP3 instead.
+
 ### Automating It
 
 I made a small bash script for this which I added to my $PATH for convenience.
