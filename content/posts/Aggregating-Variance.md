@@ -127,7 +127,7 @@ Note that to get from (13) to (14) uses a re-arrangement (5).
 
 Finally, here's snippet of R code to demonstrate the equation.
 
-{{< highlight R >}}
+{{<highlight R "linenos=table">}}
 library(dplyr)
 
 # Generate 500 points of raw data with random group labels.
