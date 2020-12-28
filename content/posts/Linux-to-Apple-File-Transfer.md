@@ -49,28 +49,31 @@ My WiFi has a decent WPA2 key and I kill the server immediately after I'm done t
 
 ### Automating It
 
-I made a small bash script for this which I added to my $PATH for convenience. Now I can just `cd` to the directory I want to share and run `serve.sh`.
+I made a small bash script for this which I added to my $PATH for convenience.
 
 {{<highlight bash "linenos=table">}}
 #!/usr/bin/env bash
+# Open an HTTP server from the given directory.
 
-PORT=${1:-54321}
+DIR=${1:-$(pwd)}
+PORT=${2:-54321}
+
 IP=$(hostname -I | awk '{print $1}')
 HOST="http://$IP:$PORT"
 
-MSG="Serving '$(pwd)' at $HOST..."
+MSG="Serving '$DIR' at $HOST..."
 LEN=$(echo $MSG | wc -m)
 SEP=$(printf %${LEN}s | tr ' ' '#')
 echo $SEP
 echo $MSG
 echo $SEP
 
-python3 -m http.server $PORT
+( cd "$DIR" && python3 -m http.server $PORT )
 {{</highlight>}}
 
-Here it is in action:
+Here it is in action. Omitting the directory serves whatever the current directory is.
 ```
-$ cd ~/audiobooks && serve.sh
+$ serve.sh ~/audiobooks
 ################################################################
 Serving '/home/keeler/audiobooks' at http://10.0.0.129:54321...
 ################################################################
