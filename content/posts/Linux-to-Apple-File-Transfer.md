@@ -4,13 +4,12 @@ date: 2020-12-28T02:12:02Z
 tags:
   - Linux
   - iPhone
-  - Apple
-  - Hack
   - Workaround
   - Bash
 ---
 
-A workaround to transfer files from Linux devices to Apple devices.
+A workaround to transfer files from Linux devices to Apple devices without iTunes or wine.
+
 <!--more-->
 
 ## Background
