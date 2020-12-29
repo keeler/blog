@@ -14,8 +14,8 @@ PygmentsCodeFences = true
 PygmentsStyle = "trac"
 
 [params.sections_left]
+  "" = "Blog"
   "about" = "About"
-  "posts/" = "Blog"
   "tags" = "Tags"
 
 # [params.features]
