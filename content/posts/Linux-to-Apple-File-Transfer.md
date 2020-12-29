@@ -23,7 +23,7 @@ While `wine` is an option I didn't want to go that route because it has been dif
 ## The Workaround
 
 The workaround is relatively simple:
-1. Put the laptop and iPhone on the same WiFi network.
+1. Put the laptop and iPhone on the same network.
 1. Run a web server on the laptop.
 1. Navigate to the web server in Safari on the iPhone to download the mp3s.
 
@@ -32,7 +32,7 @@ My WiFi has a decent WPA2 key and I kill the server immediately after I'm done t
 
 ### Details
 
-1. Put your computer and iPhone to the same network. For example, connect both to the same WiFi network.
+1. Put your computer and iPhone on the same network. For example, connect both to the same WiFi network.
 1. Start an HTTP server in the directory you want to share.
     ```
     $ cd ~/audiobooks
