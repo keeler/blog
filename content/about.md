@@ -5,7 +5,7 @@ hidden = true
 
 Welcome.
 
-I occasionally feel an urge to write, so I made this blog because I have bad impulse control.
+This is a log of things I write up so I can refer to them later.
 
 Peace.
 
