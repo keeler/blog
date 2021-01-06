@@ -43,4 +43,4 @@ publish: build
 
 .PHONY: new-post
 new-post:
-	$(HUGO) new posts/$(filename)
+	$(HUGO) new $(filename)
