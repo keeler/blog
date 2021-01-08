@@ -55,9 +55,10 @@ It's the port allowing access to Jaeger outside the container so you can get tha
 
 **Step 2: Copy Your Files Into the Container**
 
-For the sake of a concrete example, you can run the the lines in this footnote[^1] in a terminal to download [this Flask app](https://github.com/docker/labs/tree/9fd92affd4f02d31fa0dc674d61e9ab18b61ec4f/beginner/flask-app) from the Docker tutorial. Otherwise, just use your own project.
+For the sake of a concrete example, you can run the the lines in this footnote[^1] in a terminal to download [this Flask app](https://github.com/docker/labs/tree/9fd92affd4f02d31fa0dc674d61e9ab18b61ec4f/beginner/flask-app) from the canonical Docker examples.
+Otherwise, just use your own project.
 
-Make a directory in the running `build-profiler` container copy your Dockerfile and other associated sources, assets, etc. into the container.
+Make a directory in the running `build-profiler` container and copy your Dockerfile and other associated sources, assets, etc. into the container.
 
 ```bash
 cd ~/flask_app
@@ -83,7 +84,7 @@ docker exec -it build-profiler buildctl build \
 You can use either the web UI for a visual representation, or a REST request for programmatic access.
 
 1. For the web UI, go to [http://localhost:16686](http://localhost:16686) in your browser. Choose "buildctl" in the `Service` dropdown, click the `Find Traces` button, and choose the most recent one.
-1. For REST, you can use the [REST API](https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal). It works but is undocumented as of Jan 2021 and subject to change.
+1. You can also use the [REST API](https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal). It works but is undocumented as of Jan 2021 and subject to change.
     ```bash
     curl -s http://localhost:16686/api/traces\?service\=buildctl | jq '.'
     ```
