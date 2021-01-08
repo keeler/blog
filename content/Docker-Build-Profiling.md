@@ -139,11 +139,11 @@ GITHUB=https://raw.githubusercontent.com/
 COMMIT=9fd92affd4f02d31fa0dc674d61e9ab18b61ec4f
 BASE_URL=$GITHUB/docker/labs/$COMMIT/beginner/flask-app
 
-curl $BASE_URL/requirements.txt --output requirements.txt
-curl $BASE_URL/app.py --output app.py
-curl $BASE_URL/Dockerfile --output Dockerfile
+curl -L $BASE_URL/requirements.txt --output requirements.txt
+curl -L $BASE_URL/app.py --output app.py
+curl -L $BASE_URL/Dockerfile --output Dockerfile
 mkdir -p templates
-curl $BASE_URL/index.html --output templates/index.html
+curl -L $BASE_URL/index.html --output templates/index.html
 {{</highlight>}}
 
 
