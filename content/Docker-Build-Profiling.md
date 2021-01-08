@@ -97,7 +97,7 @@ Seeing the source code may help you follow along: https://github.com/keeler/dock
 
 I could just install the buildkit daemon locally, right?
 Well, no, not really; I didn't like running it as root and the "rootless" setup didn't work for me.
-Furthermore, as of Jan 2021 `buildkitd` is only available on Linux (as of Jan 2021) and I felt a more cross-platform solution would be more appropriate.
+Furthermore, `buildkitd` is only available on Linux (as of Jan 2021) and I felt a more cross-platform solution would be more appropriate.
 So instead I built this docker-based solution so I can run it without root privileges.
 Though I haven't tried it, it probably also doesn't require Linux, either.
 
