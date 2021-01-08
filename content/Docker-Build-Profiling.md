@@ -23,106 +23,127 @@ In other words, with a little bit of setup, you can build a docker image with bu
 
 ![Jaeger running locally](/images/posts/docker-build-profiling/jaeger.jpg)
 
-# How To Do It
+# General Idea
 
-First of all,  to do any of this requires `buildkitd` which is only available on Linux (as of Jan 2021).
-However, I didn't like the fact that I need to run it as root and besides even if I was OK with that I couldn't get it to work, anyway (neither was the rootless mode).
-So instead, I built a custom image based on [docker-in-docker](https://hub.docker.com/_/docker) into which I install buildkit.
-As such it may work outside Linux but I haven't tried this so no guarantees.
+Most of the complicated bits are built into the [keelerrussell/docker-build-profiler](https://hub.docker.com/r/keelerrussell/docker-build-profiler) docker image.
+It's just a [docker-in-docker](https://hub.docker.com/_/docker) image with buildkit and Jaeger built into it for you.
+Starting the image starts the docker daemon, Jaeger, and the buildkit daemon automatically in a container.
 
-### General Idea
-
-The basic idea is to build a custom docker-in-docker image with buildkit installed.
-With that custom image running, then start Jaeger and the buildkit daemon inside that container.
-Then you can repeat these steps iteratively:
-1. Copy files into the container (Dockerfile + build context)
+With this image running as a container, you can repeat these steps iteratively:
+1. Copy files into the container (e.g. Dockerfile + build assets like source files).
 1. Build them with buildkit in the container.
-1. Outside the container view/extract the profiling information.
+1. View profiling information in your web browser, or make REST request to get it programmatically.
 
-### Set Up
+# Demo
 
-Here's the Dockerfile for the custom docker-in-docker image:
-{{<highlight Dockerfile "linenos=table">}}
-FROM docker:dind
+**Step 1: Start The Container**
 
-WORKDIR /workspace
+Start the image as a container:
 
-ENV BUILDKIT_VERSION=0.8.0
-ENV BUILDKIT_ARCHIVE=buildkit-v$BUILDKIT_VERSION.linux-amd64.tar.gz
+```bash
+docker run -it -d --privileged \
+  --name build-profiler \
+  -p16686:16686 \
+  keelerrussell/docker-build-profiler
+```
 
-# Download and install buildkit
-RUN wget https://github.com/moby/buildkit/releases/download/v$BUILDKIT_VERSION/$BUILDKIT_ARCHIVE
-RUN tar xvzf $BUILDKIT_ARCHIVE \
- && mkdir /bin/buildkit \
- && mv ./bin/* /bin/buildkit \
- && rm -rf ./bin $BUILDKIT_ARCHIVE
+Note that it is named `build-profiler` and that port 16686 is opened.
+The name is arbitrary and just for convenience, but that port is not arbitrary.
+It's the port allowing access to Jaeger outside the container so you can get that sweet, sweet profiling information. :open_mouth:
 
-# Set up Jaeger and buildkit daemon to run.
-# See https://github.com/moby/buildkit/pull/255
-ENV JAEGER_IMAGE=jaegertracing/all-in-one:latest
-ENV JAEGER_TRACE=0.0.0.0:6831
+*At this point, you can leave the container running and repeat the following steps as needed while you're experimenting with tweaks to your Dockerfile.*
 
-RUN printf '#!/bin/sh\n\
-docker run -d -p6831:6831/udp -p16686:16686 $JAEGER_IMAGE\n\
-/bin/buildkit/buildkitd &'\
->> init.sh
-RUN chmod +x init.sh
+**Step 2: Copy Your Files Into the Container**
+
+For the sake of a concrete example, you can run the the lines in this footnote[^1] in a terminal to download [this Flask app](https://github.com/docker/labs/tree/9fd92affd4f02d31fa0dc674d61e9ab18b61ec4f/beginner/flask-app) from the Docker tutorial. Otherwise, just use your own project.
+
+Make a directory in the running `build-profiler` container copy your Dockerfile and other associated sources, assets, etc. into the container.
+
+```bash
+cd ~/flask_app
+docker exec -it build-profiler mkdir demo
+docker cp . build-profiler:/workspace/demo
+```
+
+Note that this creates the `demo` folder in the container at `/workspace/demo`; this is because the image has WORKDIR set to `/workspace`.
+
+**Step 3: Build Using `buildkit`**
+
+Next, build your docker image inside the `build-profiler` container using buildkit.
+
+```bash
+docker exec -it build-profiler buildctl build \
+  --frontend=dockerfile.v0 \
+  --local context=demo \
+  --local dockerfile=demo
+```
+
+**Step 4: Get Traces From Jaeger**
+
+You can use either the web UI for a visual representation, or a REST request for programmatic access.
+
+1. For the web UI, go to `http://localhost:16686` in your browser. Choose "buildctl" in the `Service` dropdown, click the `Find Traces` button, and choose the most recent one.
+1. For REST, you can use the [REST API](https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal). It works but is undocumented as of Jan 2021 and subject to change.
+    ```bash
+    curl -s http://localhost:16686/api/traces\?service\=buildctl | jq '.'
+    ```
+
+# How it Works
+
+Be forwarned, this is docker-ception; docker-in-docker with extra docker images hacked in.
+Seeing the source code may help you follow along: https://github.com/keeler/docker-build-profiler
+
+**Why is this a docker image at all?**
+
+I could just install the buildkit daemon locally, right?
+Well, no, not really; I didn't like running it as root and the "rootless" setup didn't work for me.
+Furthermore, as of Jan 2021 `buildkitd` is only available on Linux (as of Jan 2021) and I felt a more cross-platform solution would be more appropriate.
+So instead I built this docker-based solution so I can run it without root privileges.
+Though I haven't tried it, it probably also doesn't require Linux, either.
+
+**OK, so how does the image work?**
+
+As mentioned above, this is a docker image which adds buildkit and Jaeger into a pre-existing docker-in-docker image from dockerhub.
+
+When you run the `docker-build-profiler` image, it first calls the entrypoint of its parent docker-in-docker image to start the docker daemon *inside the container*.
+After the docker daemon is running, it runs `docker load` to load a `jaeger-all-in-one` image built into the container
+(this is kind of weird but bear with me, I'll elaborate momentarily)
+then runs that image with this command yanked more-or-less directly from the [buildkit PR](https://github.com/moby/buildkit/pull/255) mentioned earlier:
+
+```bash
+docker run -d -p6831:6831/udp -p16686:16686 $JAEGER_IMAGE
+```
+
+Finally, it runs the buildkit daemon and is ready for you to use.
+
+**Now, what is that weird `docker load` bit about?**
+
+You may have percieved that I could just do a `docker pull` to get the `jaeger-all-in-one` image at runtime instead.
+However, I didn't like that approach because I occasionally work while commuting on a train (not during Covid-19 but past me did and future me will).
+Since the train can have spotty internet service, such an approach is a non-starter for me.
+As a matter of personal preference, I prefer solutions which minimize internet bandwidth requirements as much as possible.
+
+So instead, my solution is a little more complicated but doesn't require internet access (after you've pulled the `docker-build-profiler` image locally, that is).
+Before ever running `docker build`, I first run `docker save` to turn the `jaeger-all-in-one` image into a .tar file then *immediately unpack that tar file* into a plain ol' folder called `jaeger/`.
+That `jaeger/` folder gets added to `docker-build-profiler` image and gets gzipped up at build-time; this circumvents "magic number" errors from the `tar` command caused by differences between the tar version running on the machine which ran `docker save` and the tar version built into `alpine` which docker-in-docker is based on.
+
+Of course, because this is weird and error-prone to do manually, I automated it with a Makefile so all you need to do is run `make` or `make docker` in the repo.
+
+[^1]: Commands you can use to download the demo files locally:
+{{<highlight bash "linenos=table">}}
+cd ~
+mkdir flask_app
+cd flask_app
+
+GITHUB=https://raw.githubusercontent.com/
+COMMIT=9fd92affd4f02d31fa0dc674d61e9ab18b61ec4f
+BASE_URL=$GITHUB/docker/labs/$COMMIT/beginner/flask-app
+
+curl $BASE_URL/requirements.txt --output requirements.txt
+curl $BASE_URL/app.py --output app.py
+curl $BASE_URL/Dockerfile --output Dockerfile
+mkdir -p templates
+curl $BASE_URL/index.html --output templates/index.html
 {{</highlight>}}
 
-Save that Dockerfile as `Dockerfile-profiler`. Now to build it:
-
-```bash
-docker build -t docker-build-profiler -f Dockerfile-profiler .
-```
-
-Once the build is complete, start a container with the image:
-
-```bash
-docker run --name build-profiler -it -d --privileged -p16686:16686 docker-build-profiler
-```
-
-The flags are basically the same as are recommended in the docker-in-docker docs, except the opening of port 16686.
-This allows connecting to Jaeger outside of docker to get that sweet, sweet profiling information. :open_mouth:
-
-Now, we need to start Jaeger and the buildkit daemon.
-I built a helper script into the image to do this:
-
-```bash
-docker exec -it build-profiler ./init.sh
-```
-
-Alternatively you could run:
-```bash
-docker exec -it build-profiler docker run -d -p6831:6831/udp -p16686:16686 $JAEGER_IMAGE
-docker exec -it build-profiler /bin/buildkit/buildkitd &
-```
-
-### Getting Profiling Information
-
-With the setup complete, you can leave the container running and repeat the following steps as much as you want.
-Basically, you'll copy your Docker build context into the container, build your image, and then extract or view auto-generated profiling stats.
-I've been making a folder in the container per project I'm working on.
-
-1. Make a folder in the container's `/workspace` path to build your image in.
-    ```bash
-    docker exec -it build-profiler mkdir demo
-    ```
-1. Copy in your Dockerfile and build context.
-    ```bash
-    docker cp Dockerfile build-profiler:/workspace/demo
-    docker cp <other files> build-profiler:/workspace/demo
-    ```
-1. Build the files with buildkit.
-    ```bash
-    docker exec -it build-profiler /bin/buildkit/buildctl build \
-        --frontend=dockerfile.v0 \
-        --local context=demo \
-        --local dockerfile=demo
-    ```
-1. Get the traces from Jaeger. Use the web UI for a visual representation, or use `curl` for CLI access.
-    1. For the web UI, go to `http://localhost:16686` in your browser. Choose "buildctl" in the `Service` dropdown, click the `Find Traces` button, and choose the most recent one.
-    1. For curl, you can use the [REST API](https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal). It works but is undocumented as of Jan 2021 and subject to change.
-        ```bash
-        curl -s http://localhost:16686/api/traces\?service\=buildctl | jq '.'
-        ```
 
