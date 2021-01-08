@@ -115,6 +115,10 @@ then runs that image with this command yanked more-or-less directly from the [bu
 docker run -d -p6831:6831/udp -p16686:16686 $JAEGER_IMAGE
 ```
 
+The `-p6831:6831/udp` bit opens up communication between Jaeger and buildkit thanks to the environment variable `JAEGER_TRACE=0.0.0.0:6831` baked into the docker image.
+The `-p16686:16686` bit allows access to the Jaeger container within the docker-in-docker container *but not externally*.
+This is why the `-p16686:16686` is also needed when starting up `docker-build-profiler` in a container.
+
 Finally, it runs the buildkit daemon and is ready for you to use.
 
 **Now, what is that weird `docker load` bit about?**
