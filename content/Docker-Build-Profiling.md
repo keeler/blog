@@ -82,7 +82,7 @@ docker exec -it build-profiler buildctl build \
 
 You can use either the web UI for a visual representation, or a REST request for programmatic access.
 
-1. For the web UI, go to `http://localhost:16686` in your browser. Choose "buildctl" in the `Service` dropdown, click the `Find Traces` button, and choose the most recent one.
+1. For the web UI, go to [http://localhost:16686](http://localhost:16686) in your browser. Choose "buildctl" in the `Service` dropdown, click the `Find Traces` button, and choose the most recent one.
 1. For REST, you can use the [REST API](https://www.jaegertracing.io/docs/1.21/apis/#http-json-internal). It works but is undocumented as of Jan 2021 and subject to change.
     ```bash
     curl -s http://localhost:16686/api/traces\?service\=buildctl | jq '.'
